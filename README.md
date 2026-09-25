@@ -1,27 +1,31 @@
-# Zenith Bank App Clone (Demo)
+# Zenith Bank App Clone (simple demo)
 
-Simple demo only. Not affiliated with Zenith Bank.
+This is a practice project. It is NOT the real Zenith Bank app.
 
-## Stack
-- Frontend: Next.js (TypeScript)
-- Backend: Python FastAPI
+## How to login
+Account number: 1234567890
+Password: password
 
-## Demo login
-- Account: `1234567890`
-- Password: `password`
+## Start the backend (Python)
+1. Open a terminal
+2. Go to the backend folder
+3. Run these commands:
 
-## Run backend
-```bash
+```
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+python main.py
 ```
 
-## Run frontend
-```bash
+## Start the frontend (Next.js)
+1. Open another terminal
+2. Go to the frontend folder
+3. Run these commands:
+
+```
 cd frontend
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000
+Then open http://localhost:3000 in your browser.

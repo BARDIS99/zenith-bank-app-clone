@@ -1,102 +1,120 @@
-from fastapi import FastAPI, HTTPException
+# simple backend for the demo bank app
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
-app = FastAPI(title="Zenith Bank Demo API")
+app = FastAPI()
 
+# this lets the Next.js page talk to python
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-DEMO_USER = {
+# fake user so we do not need a real database
+user = {
     "account": "1234567890",
     "password": "password",
     "name": "Ada Okafor",
-    "balance": 2450000.50,
+    "balance": 2450000.50
 }
 
-TRANSACTIONS = [
+# fake transaction list
+transactions = [
     {"id": 1, "type": "credit", "desc": "Salary", "amount": 850000, "date": "2026-09-20"},
     {"id": 2, "type": "debit", "desc": "Transfer to GTBank", "amount": 25000, "date": "2026-09-22"},
-    {"id": 3, "type": "debit", "desc": "Airtime MTN", "amount": 2000, "date": "2026-09-24"},
+    {"id": 3, "type": "debit", "desc": "Airtime MTN", "amount": 2000, "date": "2026-09-24"}
 ]
 
 
-class LoginIn(BaseModel):
-    account: str
-    password: str
-
-
-class TransferIn(BaseModel):
-    to_account: str
-    bank: str
-    amount: float
-    narration: str = ""
-
-
-class AirtimeIn(BaseModel):
-    network: str
-    phone: str
-    amount: float
-
-
 @app.post("/api/login")
-def login(data: LoginIn):
-    if data.account == DEMO_USER["account"] and data.password == DEMO_USER["password"]:
-        return {"ok": True, "name": DEMO_USER["name"], "account": DEMO_USER["account"]}
-    raise HTTPException(status_code=401, detail="Invalid account or password")
+def login(data: dict):
+    account = data.get("account")
+    password = data.get("password")
+
+    if account == user["account"] and password == user["password"]:
+        return {
+            "ok": True,
+            "name": user["name"],
+            "account": user["account"]
+        }
+    else:
+        return {"ok": False, "message": "wrong account or password"}
 
 
 @app.get("/api/account")
-def account():
+def get_account():
     return {
-        "name": DEMO_USER["name"],
-        "account": DEMO_USER["account"],
+        "name": user["name"],
+        "account": user["account"],
         "type": "Savings",
-        "balance": DEMO_USER["balance"],
-        "transactions": TRANSACTIONS,
+        "balance": user["balance"],
+        "transactions": transactions
     }
 
 
 @app.post("/api/transfer")
-def transfer(data: TransferIn):
-    if data.amount <= 0:
-        raise HTTPException(status_code=400, detail="Invalid amount")
-    if data.amount > DEMO_USER["balance"]:
-        raise HTTPException(status_code=400, detail="Insufficient funds")
-    DEMO_USER["balance"] -= data.amount
-    TRANSACTIONS.insert(
-        0,
-        {
-            "id": len(TRANSACTIONS) + 1,
-            "type": "debit",
-            "desc": f"Transfer to {data.bank} {data.to_account}",
-            "amount": data.amount,
-            "date": "2026-09-25",
-        },
-    )
-    return {"ok": True, "balance": DEMO_USER["balance"], "message": "Transfer successful"}
+def transfer(data: dict):
+    amount = float(data.get("amount", 0))
+    to_account = data.get("to_account")
+    bank = data.get("bank")
+
+    if amount <= 0:
+        return {"ok": False, "message": "amount is not valid"}
+
+    if amount > user["balance"]:
+        return {"ok": False, "message": "not enough money"}
+
+    user["balance"] = user["balance"] - amount
+
+    new_item = {
+        "id": len(transactions) + 1,
+        "type": "debit",
+        "desc": "Transfer to " + str(bank) + " " + str(to_account),
+        "amount": amount,
+        "date": "2026-09-25"
+    }
+    transactions.insert(0, new_item)
+
+    return {
+        "ok": True,
+        "message": "Transfer successful",
+        "balance": user["balance"]
+    }
 
 
 @app.post("/api/airtime")
-def airtime(data: AirtimeIn):
-    if data.amount <= 0:
-        raise HTTPException(status_code=400, detail="Invalid amount")
-    if data.amount > DEMO_USER["balance"]:
-        raise HTTPException(status_code=400, detail="Insufficient funds")
-    DEMO_USER["balance"] -= data.amount
-    TRANSACTIONS.insert(
-        0,
-        {
-            "id": len(TRANSACTIONS) + 1,
-            "type": "debit",
-            "desc": f"{data.network} airtime {data.phone}",
-            "amount": data.amount,
-            "date": "2026-09-25",
-        },
-    )
-    return {"ok": True, "balance": DEMO_USER["balance"], "message": "Airtime purchase successful"}
+def airtime(data: dict):
+    amount = float(data.get("amount", 0))
+    network = data.get("network")
+    phone = data.get("phone")
+
+    if amount <= 0:
+        return {"ok": False, "message": "amount is not valid"}
+
+    if amount > user["balance"]:
+        return {"ok": False, "message": "not enough money"}
+
+    user["balance"] = user["balance"] - amount
+
+    new_item = {
+        "id": len(transactions) + 1,
+        "type": "debit",
+        "desc": str(network) + " airtime " + str(phone),
+        "amount": amount,
+        "date": "2026-09-25"
+    }
+    transactions.insert(0, new_item)
+
+    return {
+        "ok": True,
+        "message": "Airtime purchase successful",
+        "balance": user["balance"]
+    }
+
+
+# this starts the server when you run: python main.py
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
