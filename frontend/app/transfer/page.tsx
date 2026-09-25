@@ -13,8 +13,7 @@ export default function TransferPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setMsg("");
-    setErr("");
+    setMsg(""); setErr("");
     const res = await fetch(`${API}/api/transfer`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -22,12 +21,13 @@ export default function TransferPage() {
     });
     const data = await res.json();
     if (!res.ok) setErr(data.detail || "Failed");
-    else setMsg(data.message + " New balance: ₦" + Number(data.balance).toLocaleString());
+    else setMsg(data.message + " Balance: ₦" + Number(data.balance).toLocaleString());
   }
 
   return (
     <div className="wrap">
-      <div className="header"><h1>Transfer</h1></div>
+      <div className="demo">UNOFFICIAL DEMO · NOT ZENITH BANK</div>
+      <div className="top"><strong>Transfer Money</strong></div>
       <form className="card" onSubmit={onSubmit}>
         <label>Bank</label>
         <select value={bank} onChange={(e) => setBank(e.target.value)}>
@@ -36,15 +36,20 @@ export default function TransferPage() {
           <option>Access Bank</option>
           <option>UBA</option>
         </select>
-        <label>Account number</label>
+        <label>Destination account</label>
         <input value={to_account} onChange={(e) => setTo(e.target.value)} required />
         <label>Amount (₦)</label>
         <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
         {err && <div className="err">{err}</div>}
         {msg && <div className="ok">{msg}</div>}
-        <button type="submit">Send</button>
+        <button type="submit">Send Money</button>
       </form>
-      <div className="nav"><Link href="/dashboard">Back</Link></div>
+      <nav className="bottom">
+        <Link href="/dashboard">Overview</Link>
+        <Link href="/airtime">Airtime</Link>
+        <Link className="active" href="/transfer">Transfer</Link>
+        <Link href="/">Sign out</Link>
+      </nav>
     </div>
   );
 }

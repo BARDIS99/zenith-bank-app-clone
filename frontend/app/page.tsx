@@ -4,6 +4,15 @@ import { useRouter } from "next/navigation";
 
 const API = "http://localhost:8000";
 
+function ZMark({ size = 56 }: { size?: number }) {
+  return (
+    <svg className="zmark" width={size} height={size} viewBox="0 0 64 64" aria-hidden>
+      <polygon points="6,8 58,8 28,32 58,32 6,56 36,32 6,32" fill="#5b5b5b" />
+      <polygon points="10,34 58,10 58,34 22,56" fill="#e3000f" />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [account, setAccount] = useState("1234567890");
@@ -28,18 +37,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="wrap">
-      <div className="header">
-        <h1>Zenith Bank</h1>
-        <p style={{ margin: "6px 0 0", fontSize: 13, opacity: 0.9 }}>Mobile Banking Demo</p>
+    <div className="wrap login">
+      <div className="demo">UNOFFICIAL DEMO · NOT ZENITH BANK</div>
+      <div className="login-hero">
+        <ZMark />
+        <div style={{ fontWeight: 800, letterSpacing: 3, color: "#5b5b5b", marginTop: 8 }}>ZENITH</div>
+        <h2 style={{ margin: "24px 0 0" }}>Welcome back!</h2>
+        <p className="sub">Identify yourself to sign in. Demo only.</p>
       </div>
-      <form className="card" onSubmit={onSubmit}>
-        <label>Account number</label>
+      <form onSubmit={onSubmit}>
+        <label>ACCOUNT NUMBER</label>
         <input value={account} onChange={(e) => setAccount(e.target.value)} />
-        <label>Password</label>
+        <label>PASSWORD</label>
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         {err && <div className="err">{err}</div>}
-        <button type="submit">Sign in</button>
+        <button type="submit">LOGIN</button>
       </form>
     </div>
   );

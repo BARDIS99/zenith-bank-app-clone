@@ -13,8 +13,7 @@ export default function AirtimePage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setMsg("");
-    setErr("");
+    setMsg(""); setErr("");
     const res = await fetch(`${API}/api/airtime`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -22,12 +21,13 @@ export default function AirtimePage() {
     });
     const data = await res.json();
     if (!res.ok) setErr(data.detail || "Failed");
-    else setMsg(data.message + " New balance: ₦" + Number(data.balance).toLocaleString());
+    else setMsg(data.message + " Balance: ₦" + Number(data.balance).toLocaleString());
   }
 
   return (
     <div className="wrap">
-      <div className="header"><h1>Airtime</h1></div>
+      <div className="demo">UNOFFICIAL DEMO · NOT ZENITH BANK</div>
+      <div className="top"><strong>Airtime</strong></div>
       <form className="card" onSubmit={onSubmit}>
         <label>Network</label>
         <select value={network} onChange={(e) => setNetwork(e.target.value)}>
@@ -42,9 +42,14 @@ export default function AirtimePage() {
         <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
         {err && <div className="err">{err}</div>}
         {msg && <div className="ok">{msg}</div>}
-        <button type="submit">Buy</button>
+        <button type="submit">Buy Airtime</button>
       </form>
-      <div className="nav"><Link href="/dashboard">Back</Link></div>
+      <nav className="bottom">
+        <Link href="/dashboard">Overview</Link>
+        <Link className="active" href="/airtime">Airtime</Link>
+        <Link href="/transfer">Transfer</Link>
+        <Link href="/">Sign out</Link>
+      </nav>
     </div>
   );
 }
